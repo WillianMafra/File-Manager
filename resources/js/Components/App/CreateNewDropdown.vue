@@ -19,7 +19,7 @@
         >
           <div class="px-1 py-1">
             <MenuItem v-slot="{ active }">
-                <a class="text-gray-700 block px-4 py-2 text-sm">New Folder</a>
+                <a @click.prevent="showCreateFolderModal" href="#" class="text-gray-700 block px-4 py-2 text-sm">New Folder</a>
           </MenuItem>
           </div>
 
@@ -34,11 +34,22 @@
         </MenuItems>
       </transition>
     </Menu>
+    <CreateFolderModal v-model="showCreateModal"></CreateFolderModal>
 </template>
 
 <script setup>
 // Imports
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
+import CreateFolderModal from './CreateFolderModal.vue';
+import { ref } from 'vue';
+
+// Refs
+const showCreateModal = ref(false);
+
+// Methods
+function showCreateFolderModal(){
+  showCreateModal.value = true;
+}
 
 
 
