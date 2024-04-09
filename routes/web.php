@@ -17,10 +17,11 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('my-files', [FileController::class, 'myFiles'])->name('MyFiles');
+    Route::post('folder/create', [FileController::class, 'createFolder'])->name('folder.create');
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return redirect()->route('MyFiles');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
