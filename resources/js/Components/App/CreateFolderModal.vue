@@ -2,7 +2,8 @@
     <Modal :show="modelValue" @show="onShow" max-width="sm">
         <div class="p-6">
             <h2 class="text-lg font-medium text-gray-900">
-                Create New Folder 
+                Create New Folder
+
             </h2>
             <div class="mt-6">
                 <InputLabel for="folderName" value="Folder Name" class="sr-only"/>
@@ -38,7 +39,7 @@
 import Modal from '@/Components/Modal.vue';
 import TextInput from '../TextInput.vue';
 import InputLabel from '../InputLabel.vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import InputError from '../InputError.vue';
 import SecondaryButton from '../SecondaryButton.vue';
 import PrimaryButton from '../PrimaryButton.vue';
@@ -49,18 +50,23 @@ const {modelValue} = defineProps({
     modelValue: Boolean
 })
 
+// Emits
 const emit = defineEmits(['update:modelvalue']);
 
-// uses
+// Uses
 const form = useForm({
-    name: ''
-})
+    name: '',
+    parent_id: null
+});
+
+const page = usePage();
 
 //Refs
 const folderNameInput = ref(null);
 
 // Methods
 function createFolder(){
+    form.parent_id = page.props.folder.id
     form.post(route('folder.create'), {
         preserveScroll: true,
         onSuccess: () => {
