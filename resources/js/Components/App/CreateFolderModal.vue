@@ -3,7 +3,6 @@
         <div class="p-6">
             <h2 class="text-lg font-medium text-gray-900">
                 Create New Folder
-
             </h2>
             <div class="mt-6">
                 <InputLabel for="folderName" value="Folder Name" class="sr-only"/>
@@ -66,7 +65,7 @@ const folderNameInput = ref(null);
 
 // Methods
 function createFolder(){
-    form.parent_id = page.props.folder.id
+    form.parent_id = page.props.folder.data.id
     form.post(route('folder.create'), {
         preserveScroll: true,
         onSuccess: () => {
