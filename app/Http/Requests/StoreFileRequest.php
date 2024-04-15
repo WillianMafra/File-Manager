@@ -6,6 +6,17 @@ use Illuminate\Support\Facades\Auth;
 
 class StoreFileRequest extends ParentIdBaseRequest
 {
+    protected function prepareForValidation()
+    {
+        $paths = array_filter($this->relative_paths ?? [], fn($f) => $f != null);
+
+        $this->merge(
+            [
+                'file_paths' => $paths,
+                'folder_name' => $this->detectFolderName($paths)
+            ]
+            );
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -14,7 +25,7 @@ class StoreFileRequest extends ParentIdBaseRequest
      */
     public function rules(): array
     {
-        return [
+        return array_merge(parent::rules() , [
             'files.*' => [
                 'required',
                 'file',
@@ -30,7 +41,33 @@ class StoreFileRequest extends ParentIdBaseRequest
                         $fail('File "'.$value->getClienteOriginalName() . '" already exists!');
                     }
                 }
+            ],
+            'folder_name' => [
+                'nullable',
+                'string',
+                function($attribute, $value, $fail){
+                    /** @var $value \Illuminate\Http\UploadedFile */
+                    $file = File::query()->where('name', $value)
+                    ->where('created_by', Auth::id())
+                    ->where('parent_id', $this->parent_id)
+                    ->whereNull('deleted_at')
+                    ->exists();
+
+                    if($file){
+                        $fail('File "'.$value->getClienteOriginalName() . '" already exists!');
+                    }
+                }
             ]
-        ];
+        ]);
+    }
+
+    public function detectFolderName($paths)
+    {
+        if(!$paths){
+            return null;
+        }
+
+        $parts = explode('/', $paths[0]);
+        return $parts[0];
     }
 }

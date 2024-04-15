@@ -37,7 +37,8 @@ const showingNavigationDropdown = ref(false);
 // Uses
 const fileUploadForm = useForm({
     files: [],
-    parent_id: null
+    parent_id: null,
+    relative_paths: []
 });
 
 const page = usePage();
@@ -68,8 +69,10 @@ function onDragLeave(){
 
 function uploadFiles(files)
 {
+
     fileUploadForm.parent_id = page.props.folder.data.id
     fileUploadForm.files = files;
+    fileUploadForm.relative_paths = [...files].map(f => f.webkitRelativePath); 
 
     fileUploadForm.post(route('file.store'));
 }
