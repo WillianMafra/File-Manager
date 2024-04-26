@@ -2,11 +2,12 @@
       <Menu as="div" class="relative inline-block text-left">
         <div>
           <MenuButton
-            class="inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-medium text-gray-800 hover:bg-black/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+            class="inline-flex w-full justify-center rounded-md px-4 py-2 text-md font-medium text-gray-800 hover:bg-black/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
           >
+          <UserCircleIcon class="h-6"></UserCircleIcon>
             {{ $page.props.auth.user.name}}
             <ChevronDownIcon
-              class="-mr-1 ml-2 h-5 w-5 text-violet-200 hover:text-gray-800"
+              class="-mr-1 ml-2 h-5 w-5 text-black text-violet-200 hover:text-black-800"
               aria-hidden="true"
             />
           </MenuButton>
@@ -47,7 +48,8 @@
   <script setup>
   // Imports
   import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
-  import { ChevronDownIcon } from '@heroicons/vue/20/solid'
+  import { ChevronDownIcon } from '@heroicons/vue/24/solid'
+  import { UserCircleIcon } from '@heroicons/vue/24/outline'
   import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
   
   </script>
