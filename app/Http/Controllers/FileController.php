@@ -60,9 +60,60 @@ class FileController extends Controller
     }
 
     public function store(StoreFileRequest $request)
-    {  
+    {
         $data = $request->validated();
+        $parent = $request->parent;
+        $user = $request->user();
+        $fileTree = $request->file_tree;
 
-        dd($data);
+        // $parent = File::query()->where('created_by', Auth::id())->where('id', $parent)->firstOrFail();
+
+        if (!$parent) {
+            $parent = $this->getRoot();
+        }
+
+        if (!empty($fileTree)) {
+            $this->saveFileTree($fileTree, $parent, $user);
+        } else {
+            foreach ($data['files'] as $file) {
+                /** @var \Illuminate\Http\UploadedFile $file */
+
+                $this->saveFile($file, $user, $parent);
+            }
+        }
+    }
+
+    public function saveFileTree($fileTree, $parent, $user)
+    {
+        foreach ($fileTree as $name => $file){
+            if(is_array($file)) // For folder
+            {
+                $folder = new File();
+                $folder->is_folder = true;
+                $folder->name = $name;
+
+                $parent->appendNode($folder);
+                $this->saveFileTree($file, $folder, $user);
+            } else { // for file
+                /**  @var \Illuminate\Http\UploadedFile $file */
+                $this->saveFile($file, $user, $parent);
+                
+            }
+        }
+    }
+
+    private function saveFile($file, $user, $parent): void
+    {
+        $path = $file->store('/files/' . $user->id);
+
+        $model = new File();
+        $model->storage_path = $path;
+        $model->is_folder = false;
+        $model->name = $file->getClientOriginalName();
+        $model->mime = $file->getMimeType();
+        $model->size = $file->getSize();
+
+        $parent->appendNode($model);
+
     }
 }

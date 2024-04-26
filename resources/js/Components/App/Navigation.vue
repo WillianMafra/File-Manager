@@ -3,9 +3,9 @@
         <div >
             <Link class="h-[80px] flex px-3 items-center gap-3" href="/">
                 <ApplicationLogo
-                    class="block h-9 w-auto fill-current text-gray-800"
+                    class="block h-9 ml-1 w-auto fill-current text-gray-800"
                 />
-                LaraStorage
+                WillStorage
             </Link>
         </div>
         <div class="px-3">
