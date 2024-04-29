@@ -34,9 +34,9 @@
             </MenuItem>
               <MenuItem v-slot="{ active }">
                 <ResponsiveNavLink :href="route('logout')"
-                :class="[active ? 'bg-gray-100 text-gray-900'
-                : 'text-gray-700', 'block px-4 py-2 text-sm']">
-                Logout
+                  method="post" as="button"
+                  :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">
+                    Logout
                 </ResponsiveNavLink>
               </MenuItem>
             </div>
@@ -47,6 +47,7 @@
   
   <script setup>
   // Imports
+  
   import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
   import { ChevronDownIcon } from '@heroicons/vue/24/solid'
   import { UserCircleIcon } from '@heroicons/vue/24/outline'
