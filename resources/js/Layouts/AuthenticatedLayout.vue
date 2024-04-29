@@ -21,14 +21,19 @@
             </template>
         </main>
     </div>
+
+    <ErrorDialog></ErrorDialog>
+    <FormProgress :form="fileUploadForm"></FormProgress>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue';
 import Navigation from '@/Components/App/Navigation.vue';
 import SearchForm from '@/Components/App/SearchForm.vue';
+import FormProgress from '@/Components/App/FormProgress.vue';
+import ErrorDialog from '@/Components/ErrorDialog.vue';
 import UserSettingsDropdown from '@/Components/App/UserSettingsDropdown.vue'
-import { FILE_UPLOAD_STARTED, emitter } from '@/event-bus';
+import { FILE_UPLOAD_STARTED, emitter, showErrorDialog } from '@/event-bus';
 import { useForm, usePage } from '@inertiajs/vue3'
 import { formToJSON } from 'axios';
 
@@ -74,7 +79,26 @@ function uploadFiles(files)
     fileUploadForm.files = files;
     fileUploadForm.relative_paths = [...files].map(f => f.webkitRelativePath); 
 
-    fileUploadForm.post(route('file.store'));
+    fileUploadForm.post(route('file.store'), {
+        onSuccess: () => {
+
+        },
+        onError: errors => {
+            let message = '';
+
+            if(Object.keys(errors).length > 0) {
+                message = errors[Object.keys(errors)[0]]
+            } else {
+                'Error during file upload, please try again later.'
+            }
+
+            showErrorDialog(message);
+        },
+        onFinish: () => {
+            fileUploadForm.clearErrors();
+            fileUploadForm.reset();
+        }
+    });
 }
 
 
