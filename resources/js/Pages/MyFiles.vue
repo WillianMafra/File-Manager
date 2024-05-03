@@ -1,7 +1,4 @@
-
 <template>
-    <div>
-    <Head title="Home" />
     <AuthenticatedLayout>
         <nav class="flex items-center justify-between p-1 mb-3">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
@@ -26,46 +23,60 @@
                 </li>
             </ol>
         </nav>
-        <table v-if="files.data.length" class="min-w-full">
-            <thead class="bg-gray-100 border-b">
-                <tr>
-                    <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                        Name
-                    </th>
-                    <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                        Owner
-                    </th>
-                    <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                        Last Modified
-                    </th>
-                    <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                        Size
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr @dblclick="openFolder(file)" v-if="files" v-for="file of files.data" :key="file.id" class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100 cursor-pointer">
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
-                        <FileIcon :file="file"></FileIcon>
-                        {{ file.name }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
-                        {{ file.owner }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
-                        {{ file.updated_at }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
-                        {{ file.size }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <div v-else class="py-8 text-center text-sm text-gray-400">
-            There is no data in this folder
-        </div>
-    </AuthenticatedLayout>    
+        <div class="flex-1 overflow-auto">
+            <table class="min-w-full">
+                <thead class="bg-gray-100 border-b">
+                    <tr>
+                        <th class="text-sm font-medium text-gray-900 px-6 pr-0 w-[30px] max-w-[30px] text-left">
+                            <Checkbox @change="onSelectAllChange" v-model="allSelected" :checked="allSelected"></Checkbox>
+                        </th>
+                        <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                            Name
+                        </th>
+                        <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                            Owner
+                        </th>
+                        <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                            Last Modified
+                        </th>
+                        <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                            Size
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr @dblclick="openFolder(file)"
+                    @click="$event => toggleFileSelect(file)"
+                    v-if="allFiles"
+                    v-for="file of allFiles.data" 
+                    :key="file.id" 
+                    class="border-b transition duration-300 ease-in-out hover:bg-blue-100 cursor-pointer"
+                    :class="(selected[file.id] || allSelected) ? 'bg-green-200' : 'bg-white'">
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium pr-0 w-[30px] max-w-[30px]">
+                            <Checkbox @change="onSelectCheckboxChange(file)" v-model="selected[file.id]" :checked="selected[file.id] || allSelected"></Checkbox>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
+                            <FileIcon :file="file"></FileIcon>
+                            {{ file.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
+                            {{ file.owner }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
+                            {{ file.updated_at }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
+                            {{ file.size }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div v-if="!allFiles.data.length" class="py-8 text-center text-sm text-gray-400">
+                There is no data in this folder
+            </div>
+        <div ref="loadMoreIntersect"></div>
     </div>
+    </AuthenticatedLayout>   
 </template>
 
 <style>
@@ -73,26 +84,101 @@
 </style>
 
 <script setup>
-    import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
-    import { router, Link, Head } from '@inertiajs/vue3'
-    import {HomeIcon} from '@heroicons/vue/20/solid'
+import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
+import { router, Link, Head } from '@inertiajs/vue3'
+import {HomeIcon} from '@heroicons/vue/20/solid'
 import FileIcon from '@/Components/App/FileIcon.vue';
+import { onMounted, onUpdated, ref } from 'vue';
+import { all } from 'axios';
+import { httpGet } from '@/Helper/http-helper';
+import Checkbox from '@/Components/Checkbox.vue';
 
-    // Props
-    const {files} = defineProps({
-        files: Object,
-        folder: Object,
-        ancestors: Object
+
+
+
+// Props
+const props = defineProps({
+    files: Object,
+    folder: Object,
+    ancestors: Object
+})
+
+// Refs
+const allSelected = ref(false);
+const selected = ref({});
+const loadMoreIntersect = ref(null);
+const allFiles = ref({
+    data: props.files.data,
+    next: props.files.links.next
+})
+
+// Methods
+function openFolder(file){
+    if(!file.is_folder)
+    {
+        return false
+    }
+
+    router.visit(route('MyFiles', {folder: file.path}));
+}
+
+function loadMore()
+{
+    if(allFiles.value.next === null) {
+        return
+    }
+
+    httpGet(allFiles.value.next).then(result => {
+        allFiles.value.data = [...allFiles.value.data, ...result.data]
+        allFiles.value.next = result.links.next
+    });
+}
+
+function onSelectAllChange()
+{
+    allFiles.value.data.forEach(f => {
+        selected.value[f.id] = allSelected.value
     })
+}
 
-    // Methods
-    function openFolder(file){
+function toggleFileSelect(file)
+{
+    selected.value[file.id] = !selected.value[file.id];
+    onSelectCheckboxChange(file);
+}
 
-        if(!file.is_folder)
-        {
-            return false
+function onSelectCheckboxChange(file)
+{
+    if(!selected.value[file.id]){
+        allSelected.value = false
+    } else {
+        let checked = true;
+
+        for (let file of allFiles.value.data){
+            if(!selected.value[file.id]){
+                checked = false;
+                break
+            }
         }
 
-        router.visit(route('MyFiles', {folder: file.path}));
+        allSelected.value = checked;
     }
+}
+// Hooks
+onUpdated( () => {
+    allFiles.value = {
+        data: props.files.data,
+        next: props.files.links.next
+    }
+})
+
+onMounted( () => {
+    const observer = new IntersectionObserver((entries) => entries.forEach(entry => entry.isIntersecting && loadMore()), {
+        rootMargin: '-250px 0px 0px 0px'
+    })
+
+    observer.observe(loadMoreIntersect.value)
+});
 </script>
+
+

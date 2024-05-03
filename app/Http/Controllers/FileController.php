@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DestroyFilesRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class FileController extends Controller
 {
-    public function myFiles(string $folder = null)
+    public function myFiles(Request $request , string $folder = null)
     {
         if($folder){
             $folder = File::query()->where('created_by', Auth::id())
@@ -28,9 +30,14 @@ class FileController extends Controller
         ->where('created_by', Auth::id())
         ->orderBy('is_folder', 'desc')
         ->orderBy('created_at', 'desc')
-        ->paginate(10);
+        ->paginate(15);
 
         $files = FileResource::collection($files);
+
+        if($request->wantsJson()) 
+        {
+            return $files;
+        }
 
         $ancestors = FileResource::collection([...$folder->ancestors, $folder]); 
 
@@ -100,6 +107,28 @@ class FileController extends Controller
                 
             }
         }
+    }
+
+    public function destroy(DestroyFilesRequest $request)
+    {
+        $data = $request->validated();
+        $parent = $request->parent;
+
+        if($data['all']){
+            $children = $parent->children;
+
+            foreach($children as $child){
+                $child->delete();
+            }
+        } else {
+            foreach($data['ids'] ?? [] as $id)
+            {
+                $file = File::find($id);
+                $file->delete();
+            }
+        }
+
+        return to_route('myFiles', ['folder' => $parent->path]);
     }
 
     private function saveFile($file, $user, $parent): void

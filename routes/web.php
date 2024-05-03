@@ -14,6 +14,7 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('my-files/{folder?}', [FileController::class, 'myFiles'])->where('folder', '(.*)')->name('MyFiles');
     Route::post('folder/create', [FileController::class, 'createFolder'])->name('folder.create');
     Route::post('/file', [FileController::class, 'store'])->name('file.store');
+    Route::delete('/file', [FileController::class, 'destroy'])->name('file.delete');
 });
 
 Route::get('/dashboard', function () {
