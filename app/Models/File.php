@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Kalnoy\Nestedset\NodeTrait;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 
 class File extends Model
 {
@@ -55,6 +56,12 @@ class File extends Model
             }
 
             $model->path = (!$model->parent->isRoot() ? $model->parent->path . '/' : '')  . Str::slug($model->name);
+        });
+
+        static::deleted(function(File $model) {
+            if(!$model->is_folder){
+                Storage::delete($model->storage_path);
+            }
         });
     }
 
