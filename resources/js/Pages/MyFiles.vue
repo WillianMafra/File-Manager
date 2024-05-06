@@ -22,6 +22,9 @@
                     </div>
                 </li>
             </ol>
+            <div>
+                <DeleteFilesButton :delete-all="allSelected" :delete-ids="selectedIds"></DeleteFilesButton>
+            </div>
         </nav>
         <div class="flex-1 overflow-auto">
             <table class="min-w-full">
@@ -88,12 +91,11 @@ import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import { router, Link, Head } from '@inertiajs/vue3'
 import {HomeIcon} from '@heroicons/vue/20/solid'
 import FileIcon from '@/Components/App/FileIcon.vue';
-import { onMounted, onUpdated, ref } from 'vue';
+import { compile, computed, onMounted, onUpdated, ref } from 'vue';
 import { all } from 'axios';
 import { httpGet } from '@/Helper/http-helper';
 import Checkbox from '@/Components/Checkbox.vue';
-
-
+import DeleteFilesButton from '@/Components/App/DeleteFilesButton.vue';
 
 
 // Props
@@ -102,6 +104,7 @@ const props = defineProps({
     folder: Object,
     ancestors: Object
 })
+
 
 // Refs
 const allSelected = ref(false);
@@ -179,6 +182,11 @@ onMounted( () => {
 
     observer.observe(loadMoreIntersect.value)
 });
+
+// Computed
+const selectedIds = computed( () => 
+    Object.entries(selected.value).filter(a => a[1]).map(a => a[0])
+)
 </script>
 
 
