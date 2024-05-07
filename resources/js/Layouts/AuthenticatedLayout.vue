@@ -24,6 +24,7 @@
 
     <ErrorDialog></ErrorDialog>
     <FormProgress :form="fileUploadForm"></FormProgress>
+    <Notification></Notification>
 </template>
 
 <script setup>
@@ -36,6 +37,7 @@ import UserSettingsDropdown from '@/Components/App/UserSettingsDropdown.vue'
 import { FILE_UPLOAD_STARTED, emitter, showErrorDialog } from '@/event-bus';
 import { useForm, usePage } from '@inertiajs/vue3'
 import { formToJSON } from 'axios';
+import Notification from '@/Components/Notification.vue';
 
 const showingNavigationDropdown = ref(false);
 

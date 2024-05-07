@@ -23,7 +23,8 @@
                 </li>
             </ol>
             <div>
-                <DeleteFilesButton :delete-all="allSelected" :delete-ids="selectedIds"></DeleteFilesButton>
+                <DownloadFilesButton class="mr-2 bg-blue-600" :all="allSelected" :ids="selectedIds"></DownloadFilesButton>
+                <DeleteFilesButton :delete-all="allSelected" :delete-ids="selectedIds" @delete="onDelete"></DeleteFilesButton>
             </div>
         </nav>
         <div class="flex-1 overflow-auto">
@@ -96,6 +97,7 @@ import { all } from 'axios';
 import { httpGet } from '@/Helper/http-helper';
 import Checkbox from '@/Components/Checkbox.vue';
 import DeleteFilesButton from '@/Components/App/DeleteFilesButton.vue';
+import DownloadFilesButton from '@/Components/App/DownloadFilesButton.vue';
 
 
 // Props
@@ -167,6 +169,13 @@ function onSelectCheckboxChange(file)
         allSelected.value = checked;
     }
 }
+
+function onDelete()
+{
+    allSelected.value = false;
+    selected.value = [];
+}
+
 // Hooks
 onUpdated( () => {
     allFiles.value = {
