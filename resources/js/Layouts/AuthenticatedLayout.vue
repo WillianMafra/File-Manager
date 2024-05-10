@@ -34,12 +34,9 @@ import SearchForm from '@/Components/App/SearchForm.vue';
 import FormProgress from '@/Components/App/FormProgress.vue';
 import ErrorDialog from '@/Components/ErrorDialog.vue';
 import UserSettingsDropdown from '@/Components/App/UserSettingsDropdown.vue'
-import { FILE_UPLOAD_STARTED, emitter, showErrorDialog } from '@/event-bus';
+import { FILE_UPLOAD_STARTED, emitter, showErrorDialog, showSuccessNotification } from '@/event-bus';
 import { useForm, usePage } from '@inertiajs/vue3'
-import { formToJSON } from 'axios';
 import Notification from '@/Components/Notification.vue';
-
-const showingNavigationDropdown = ref(false);
 
 // Uses
 const fileUploadForm = useForm({
@@ -83,7 +80,12 @@ function uploadFiles(files)
 
     fileUploadForm.post(route('file.store'), {
         onSuccess: () => {
-
+            let filesLength = files.length;
+            if(filesLength === 1) {
+                showSuccessNotification(`${filesLength} file have been uploaded`);
+            } else {
+                showSuccessNotification(`${filesLength} files have been uploaded`);
+            }
         },
         onError: errors => {
             let message = '';

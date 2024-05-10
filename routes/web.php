@@ -11,11 +11,22 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function() {
-    Route::get('my-files/{folder?}', [FileController::class, 'myFiles'])->where('folder', '(.*)')->name('MyFiles');
-    Route::post('folder/create', [FileController::class, 'createFolder'])->name('folder.create');
+    // File
     Route::post('/file', [FileController::class, 'store'])->name('file.store');
+    Route::post('/file/restore', [FileController::class, 'restore'])->name('file.restore');
     Route::delete('/file', [FileController::class, 'destroy'])->name('file.delete');
+    Route::delete('/file/delete-forever', [FileController::class, 'deleteForever'])->name('file.deleteForever');
     Route::get('/file/download', [FileController::class, 'download'])->name('file.download');
+
+    // My Files
+    Route::get('my-files/{folder?}', [FileController::class, 'myFiles'])->where('folder', '(.*)')->name('MyFiles');
+
+    // Folder
+    Route::post('folder/create', [FileController::class, 'createFolder'])->name('folder.create');
+
+    // Trash
+    Route::get('/trash', [FileController::class, 'trash'])->name('trash');
+
 });
 
 Route::get('/dashboard', function () {

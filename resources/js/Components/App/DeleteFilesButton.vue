@@ -77,6 +77,7 @@ function onDeleteConfirm()
     if(props.deleteAll)
     {
         deleteFilesForm.all = true;
+        deleteFilesForm.ids = [];
     } else {
         deleteFilesForm.ids = props.deleteIds
     }
@@ -85,12 +86,11 @@ function onDeleteConfirm()
         onSuccess: () => {
             showDeleteDialog.value = false;
             emit('delete');
-            // show success
-            showSuccessNotification('Selected files have been deleted')
+            showSuccessNotification('Selected files have been deleted');
+
         }
     }
 );
-    console.log(`delete`);
 
 }
 
