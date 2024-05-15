@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddToFavouritesRequest;
 use App\Http\Requests\FilesActionRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Requests\TrashFilesRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
+use App\Models\StarredFile;
+use Carbon\Carbon;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +24,8 @@ class FileController extends Controller
     public function myFiles(Request $request , string $folder = null)
     {
         if($folder){
-            $folder = File::query()->where('created_by', Auth::id())
+            $folder = File::query()
+            ->where('created_by', Auth::id())
             ->where('path', $folder)
             ->firstOrFail();
         }
@@ -29,12 +33,24 @@ class FileController extends Controller
         if(!$folder){
             $folder = $this->getRoot();
         }
+        $favourites = (int)$request->get('favourites');
 
-        $files = File::query()->where('parent_id', $folder->id)
+
+        $query = File::query()
+        ->select('files.*')
+        ->with('starred')
+        ->where('parent_id', $folder->id)
         ->where('created_by', Auth::id())
         ->orderBy('is_folder', 'desc')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15);
+        ->orderBy('files.created_at', 'desc')
+        ->orderBy('files.id', 'desc');
+        
+
+        if($favourites === 1){
+            $query->join('starred_files', 'starred_files.file_id', 'files.id')->where('starred_files.user_id', Auth::id());
+        }
+
+        $files = $query->paginate(15);
 
         $files = FileResource::collection($files);
 
@@ -296,5 +312,36 @@ class FileController extends Controller
         }
 
         return to_route('trash');
+    }
+
+    public function addToFavourites(AddToFavouritesRequest $request)
+    {
+        $data = $request->validated();
+
+        $id = $data['id'] ?? [];
+        $file = File::find($id);
+
+        $userId = Auth::id();
+
+        $starredFile= StarredFile::query()
+        ->where('user_id', $userId)
+        ->where('file_id', $id)
+        ->first();
+
+        if($starredFile){
+            $starredFile->delete();
+        } else {
+            $data = [
+                'file_id' => $file->id,
+                'user_id' => $userId,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ];
+    
+           StarredFile::create($data);
+        }
+        
+
+        return redirect()->back();
     }
 }

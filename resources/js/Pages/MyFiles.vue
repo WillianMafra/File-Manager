@@ -2,13 +2,13 @@
     <AuthenticatedLayout>
         <nav class="flex items-center justify-between p-1 mb-3">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li v-for="ans of ancestors.data" :key="ans.id" class="inline-flex items-center">
-                    <Link v-if="!ans.parent_id" :href="route('MyFiles')"
-                          class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                <Link   :href="route('MyFiles')"
+                        class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
                         <HomeIcon class="w-4 h-4"/>
                         My Files
-                    </Link>
-                    <div v-else class="flex items-center">
+                </Link>
+                <li v-for="ans of ancestors.data" :key="ans.id" class="inline-flex items-center">
+                    <div v-if="ans.parent_id" class="flex items-center">
                         <svg aria-hidden="true" class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"
                              xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd"
@@ -23,7 +23,11 @@
                 </li>
             </ol>
             <div>
-                <DownloadFilesButton class="mr-2 bg-blue-600" :all="allSelected" :ids="selectedIds"></DownloadFilesButton>
+                <label class="felx items-center">
+                    Only Favourites
+                    <Checkbox class="mr-2" @change="showOnlyFavourites" v-model:checked="onlyFavourites" ></Checkbox>
+                </label>
+                <DownloadFilesButton class="bg-blue-600" :all="allSelected" :ids="selectedIds"></DownloadFilesButton>
                 <DeleteFilesButton :delete-all="allSelected" :delete-ids="selectedIds" @delete="onDelete"></DeleteFilesButton>
             </div>
         </nav>
@@ -33,6 +37,9 @@
                     <tr>
                         <th class="text-sm font-medium text-gray-900 px-6 pr-0 w-[30px] max-w-[30px] text-left">
                             <Checkbox @change="onSelectAllChange" v-model="allSelected" :checked="allSelected"></Checkbox>
+                        </th>
+                        <th class="text-sm font-medium text-gray-900">
+                            
                         </th>
                         <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                             Name
@@ -58,6 +65,17 @@
                     :class="(selected[file.id] || allSelected) ? 'bg-green-200' : 'bg-white'">
                         <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium pr-0 w-[30px] max-w-[30px]">
                             <Checkbox @change="onSelectCheckboxChange(file)" v-model="selected[file.id]" :checked="selected[file.id] || allSelected"></Checkbox>
+                        </td>
+                        <td class="pl-6 py-4 max-w-[50px] w-[50px] text-gray-900 text-sm font-medium">
+                            <div @click.stop.prevent="addRemoveFavourite(file)">
+                                <svg v-if="file.is_favourite" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500 w-6 h-6">
+                                    <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
+                                </svg>
+                                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-yellow-500 w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                                </svg>
+
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
                             <FileIcon :file="file"></FileIcon>
@@ -89,15 +107,18 @@
 
 <script setup>
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
-import { router, Link } from '@inertiajs/vue3'
-import {HomeIcon} from '@heroicons/vue/20/solid'
+import { router, Link, useForm, usePage } from '@inertiajs/vue3'
+import {HomeIcon} from '@heroicons/vue/24/solid'
 import FileIcon from '@/Components/App/FileIcon.vue';
 import { computed, onMounted, onUpdated, ref } from 'vue';
-import { httpGet } from '@/Helper/http-helper';
+import { httpGet, httpPost } from '@/Helper/http-helper';
 import Checkbox from '@/Components/Checkbox.vue';
 import DeleteFilesButton from '@/Components/App/DeleteFilesButton.vue';
 import DownloadFilesButton from '@/Components/App/DownloadFilesButton.vue';
+import { showSuccessNotification } from '@/event-bus';
 
+//Uses
+const page = usePage();
 
 // Props
 const props = defineProps({
@@ -109,12 +130,14 @@ const props = defineProps({
 
 // Refs
 const allSelected = ref(false);
+const onlyFavourites = ref(false);
 const selected = ref({});
 const loadMoreIntersect = ref(null);
 const allFiles = ref({
     data: props.files.data,
     next: props.files.links.next
-})
+});
+let params = null;
 
 // Methods
 function openFolder(file){
@@ -175,6 +198,30 @@ function onDelete()
     selected.value = [];
 }
 
+function showOnlyFavourites() {
+    if (onlyFavourites.value) {
+        params.set('favourites', 1)
+    } else {
+        params.delete('favourites')
+    }
+    router.get(window.location.pathname+'?'+params.toString())
+}
+
+function addRemoveFavourite(file) {
+    httpPost(route('file.addToFavourites'), {id: file.id})
+        .then(() => {
+            file.is_favourite = !file.is_favourite
+            if(file.is_favourite == true){
+                showSuccessNotification('Selected file have been added to favourites')
+            } else {
+                showSuccessNotification('Selected file have been removed from favourites')
+            }
+        })
+        .catch(async (er) => {
+            console.log(er.error.message);
+        })
+}
+
 // Hooks
 onUpdated( () => {
     allFiles.value = {
@@ -187,6 +234,8 @@ onMounted( () => {
     const observer = new IntersectionObserver((entries) => entries.forEach(entry => entry.isIntersecting && loadMore()), {
         rootMargin: '-250px 0px 0px 0px'
     })
+    params = new URLSearchParams(window.location.search)
+    onlyFavourites.value = params.get('favourites') === '1'
 
     observer.observe(loadMoreIntersect.value)
 });

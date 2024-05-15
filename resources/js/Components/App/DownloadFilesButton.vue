@@ -1,8 +1,11 @@
 <template>
-    <PrimaryButton @click="download">
-        <ArrowDownTrayIcon class="w-6 h-6 mr-2"></ArrowDownTrayIcon>
+    <button @click="download"
+            class="inline-flex items-center mx-2 px-4 py-2 text-sm font-medium text-gray-900 bg-black border border-gray-200 rounded-lg hover:text-blue-700
+             focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-grey-900 dark:border-black-900 dark:text-white 
+             dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+             <ArrowDownTrayIcon class="w-4 h-4 mr-2"></ArrowDownTrayIcon>
         Download
-    </PrimaryButton>
+    </button>
 
 </template>
 
