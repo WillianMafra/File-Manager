@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Kalnoy\Nestedset\NodeTrait;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 
 class File extends Model
@@ -45,6 +46,12 @@ class File extends Model
     public function parent(): BelongsTo
     {
         return $this->BelongsTo(File::class, 'parent_id');
+    }
+
+    public function starred(): HasOne 
+    {
+        return $this->HasOne(StarredFile::class, 'file_id', 'id')
+        ->where('user_id', Auth::id());
     }
 
     protected static function boot()

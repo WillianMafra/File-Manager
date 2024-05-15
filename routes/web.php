@@ -17,6 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::delete('/file', [FileController::class, 'destroy'])->name('file.delete');
     Route::delete('/file/delete-forever', [FileController::class, 'deleteForever'])->name('file.deleteForever');
     Route::get('/file/download', [FileController::class, 'download'])->name('file.download');
+    Route::post('/file/add-to-favourites', [FileController::class, 'addToFavourites'])->name('file.addToFavourites');
 
     // My Files
     Route::get('my-files/{folder?}', [FileController::class, 'myFiles'])->where('folder', '(.*)')->name('MyFiles');
