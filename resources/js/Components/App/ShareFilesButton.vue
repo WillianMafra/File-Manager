@@ -8,22 +8,14 @@
             </svg>
              Share
     </button>
-    <ShareFilesModal v-model="showModal"></ShareFilesModal>
+    <ShareFilesModal v-model="showModal" :all-selected="allSelected" :selected-ids="selectedIds" ></ShareFilesModal>
 </template>
 
 <script setup>
 // Imports
-import { useForm, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import {  showErrorDialog, showSuccessNotification } from '@/event-bus';
+import {  showErrorDialog } from '@/event-bus';
 import ShareFilesModal from '@/Components/App/ShareFilesModal.vue'
-
-// Uses
-const page = usePage();
-const form = useForm({
-    all: null,
-    ids: [],
-});
 
 // Refs
 const showModal = ref(false);
@@ -41,47 +33,17 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['restore']);
 // Computed
 
 // Methods
 
 function onClick()
 {
-
     if(!props.allSelected && !props.selectedIds.length) {
         showErrorDialog('Please select at least one file to share.')
         return;
     }
     showModal.value = true;
 }
-
-function onCancel()
-{
-    showModal.value = false;
-}
-
-function onConfirm()
-{
-    if(props.allSelected)
-    {
-        form.all = true;
-        form.ids = [];
-    } else {
-        form.ids = props.selectedIds
-    }
-
-    form.post(route('file.share'), {
-        onSuccess: () => {
-            showModal.value = false;
-            emit('restore');
-            showSuccessNotification('Selected files have been shared')
-        }
-    }
-);
-
-}
-
-
 // Hooks
 </script>

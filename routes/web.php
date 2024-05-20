@@ -18,7 +18,9 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::delete('/file/delete-forever', [FileController::class, 'deleteForever'])->name('file.deleteForever');
     Route::get('/file/download', [FileController::class, 'download'])->name('file.download');
     Route::post('/file/add-to-favourites', [FileController::class, 'addToFavourites'])->name('file.addToFavourites');
-    Route::post('/file/share-files', [FileController::class, 'shareFiles'])->name('file.share');
+    Route::post('/file/share', [FileController::class, 'share'])->name('file.share');
+    Route::get('/file/shared-with-me', [FileController::class, 'sharedWithMe'])->name('file.sharedWithMe');
+    Route::get('/file/shared-by-me', [FileController::class, 'sharedByMe'])->name('file.sharedByMe');
 
     // My Files
     Route::get('my-files/{folder?}', [FileController::class, 'myFiles'])->where('folder', '(.*)')->name('MyFiles');
