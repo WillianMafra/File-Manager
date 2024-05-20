@@ -23,7 +23,7 @@
                 </li>
             </ol>
             <div>
-                <label class="felx items-center">
+                <label class="items-center">
                     Only Favourites
                     <Checkbox class="mr-2" @change="showOnlyFavourites" v-model:checked="onlyFavourites" ></Checkbox>
                 </label>

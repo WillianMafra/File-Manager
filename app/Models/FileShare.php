@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class FileShare extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['user_id', 'file_id', 'created_at', 'updated_at'];
 }

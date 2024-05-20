@@ -43,6 +43,7 @@ import InputError from '../InputError.vue';
 import SecondaryButton from '../SecondaryButton.vue';
 import PrimaryButton from '../PrimaryButton.vue';
 import {ref, nextTick} from 'vue'
+import { showSuccessNotification } from '@/event-bus';
 
 // Props
 const {modelValue} = defineProps({
@@ -69,8 +70,9 @@ function createFolder(){
     form.post(route('folder.create'), {
         preserveScroll: true,
         onSuccess: () => {
+            showSuccessNotification(`The folder ${form.name} was created.`)
+            form.reset();
             closeModal();
-            form.reset()
         },
         onError: () => folderNameInput.value.focus()
     })
