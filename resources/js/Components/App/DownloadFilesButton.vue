@@ -12,7 +12,6 @@
 <script setup>
 // Imports
 import { usePage } from '@inertiajs/vue3';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
 import { httpGet } from '@/Helper/http-helper';
 // Uses
@@ -30,7 +29,9 @@ const props = defineProps({
     ids: {
         type: Array,
         required: false
-    }
+    },
+    sharedWithMe: false,
+    sharedByMe: false
 })
 
 // Computed
@@ -44,8 +45,9 @@ function download()
     }
 
     const p = new URLSearchParams();
-
-    p.append('parent_id', page.props.folder.data.id);
+    if(page.props.folder?.data.id){
+        p.append('parent_id', page.props.folder?.data.id);
+    }
     if(props.all){
         p.append('all', props.all ? 1 : 0);
     } else {
@@ -53,8 +55,14 @@ function download()
             p.append('ids[]', id);
         }
     }
+    let url = route('file.download');
 
-    httpGet(route('file.download') + '?' + p.toString())
+    if(props.sharedByMe){
+        url = route('file.downloadSharedByMe');
+    } else if (props.sharedWithMe){
+        url = route('file.downloadSharedWithMe');
+    }
+    httpGet(url + '?' + p.toString())
     .then(response => {
         if(!response.url) return
 

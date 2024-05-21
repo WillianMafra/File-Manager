@@ -3,7 +3,7 @@
         <nav class="flex items-center justify-between p-1 mb-3">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <Link   :href="route('MyFiles')"
-                        class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                        class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-green-500">
                         <HomeIcon class="w-4 h-4"/>
                         My Files
                 </Link>
@@ -45,6 +45,9 @@
                         <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                             Name
                         </th>
+                        <th v-if="search" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                            Path
+                        </th>
                         <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                             Owner
                         </th>
@@ -82,6 +85,9 @@
                             <FileIcon :file="file"></FileIcon>
                             {{ file.name }}
                         </td>
+                        <td v-if="search" class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
+                            {{ file.path }}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-sm font-medium">
                             {{ file.owner }}
                         </td>
@@ -116,7 +122,7 @@ import { httpGet, httpPost } from '@/Helper/http-helper';
 import Checkbox from '@/Components/Checkbox.vue';
 import DeleteFilesButton from '@/Components/App/DeleteFilesButton.vue';
 import DownloadFilesButton from '@/Components/App/DownloadFilesButton.vue';
-import { showSuccessNotification } from '@/event-bus';
+import { emitter, showSuccessNotification, ON_SEARCH } from '@/event-bus';
 import ShareFilesButton from '@/Components/App/ShareFilesButton.vue';
 
 //Uses
@@ -130,6 +136,7 @@ const props = defineProps({
 })
 
 
+
 // Refs
 const allSelected = ref(false);
 const onlyFavourites = ref(false);
@@ -140,6 +147,7 @@ const allFiles = ref({
     next: props.files.links.next
 });
 let params = null;
+let search = ref('');
 
 // Methods
 function openFolder(file){
@@ -238,6 +246,10 @@ onMounted( () => {
     })
     params = new URLSearchParams(window.location.search)
     onlyFavourites.value = params.get('favourites') === '1'
+    search.value = params.get('search');
+    emitter.on(ON_SEARCH, (value) => {
+        search.value = value;
+    })
 
     observer.observe(loadMoreIntersect.value)
 });

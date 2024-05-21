@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Kalnoy\Nestedset\NodeTrait;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\BelongsToRelationship;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 
@@ -38,9 +40,9 @@ class File extends Model
 
     }
 
-    public function user(): BelongsTo 
+    public function user():  BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->BelongsTo(User::class, 'created_by');
     }
 
     public function parent(): BelongsTo
@@ -105,5 +107,24 @@ class File extends Model
                 Storage::delete($file->storage_path);
             }
         }
+    }
+
+    public static function getSharedWithMe()
+    {
+        return File::query()
+        ->select('files.*')
+        ->join('file_shares', 'file_shares.file_id', 'files.id')
+        ->where('user_id', auth()->user()->id)
+        ->orderBy('file_shares.created_at', 'desc')
+        ->orderBy('files.id', 'desc');
+    }
+    public static function getSharedByMe()
+    {
+        return File::query()
+        ->select('files.*')
+        ->join('file_shares', 'file_shares.file_id', 'files.id')
+        ->where('files.created_by', auth()->user()->id)
+        ->orderBy('file_shares.created_at', 'desc')
+        ->orderBy('files.id', 'desc');
     }
 }

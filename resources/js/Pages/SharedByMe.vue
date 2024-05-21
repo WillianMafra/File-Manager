@@ -2,6 +2,7 @@
     <AuthenticatedLayout>
         <nav class="flex items-center justify-end p-1 mb-3">
             <div>
+                <DownloadFilesButton class="bg-blue-600" :all="allSelected" :ids="selectedIds" :shared-by-me="true" ></DownloadFilesButton>
             </div>
         </nav>
         <div class="flex-1 overflow-auto">
@@ -60,6 +61,7 @@ import { httpGet } from '@/Helper/http-helper';
 import Checkbox from '@/Components/Checkbox.vue';
 import DeleteForeverButton from '@/Components/App/DeleteForeverButton.vue';
 import RestoreFilesButton from '@/Components/App/RestoreFilesButton.vue';
+import DownloadFilesButton from '@/Components/App/DownloadFilesButton.vue';
 
 
 // Props
