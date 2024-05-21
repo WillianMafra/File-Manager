@@ -2,6 +2,7 @@
     <AuthenticatedLayout>
         <nav class="flex items-center justify-end p-1 mb-3">
             <div>
+                <DownloadFilesButton :shared-with-me="true" class="bg-blue-600" :all="allSelected" :ids="selectedIds"></DownloadFilesButton>
             </div>
         </nav>
         <div class="flex-1 overflow-auto">
@@ -21,7 +22,7 @@
                 </thead>
                 <tbody>
                     <tr
-                    @click="$event => toggleFileSelect(file)"
+                    @click="$event => toggleFileSelect(file)" 
                     v-if="allFiles"
                     v-for="file of allFiles.data" 
                     :key="file.id" 
@@ -58,8 +59,8 @@ import FileIcon from '@/Components/App/FileIcon.vue';
 import {  computed, onMounted, onUpdated, ref } from 'vue';
 import { httpGet } from '@/Helper/http-helper';
 import Checkbox from '@/Components/Checkbox.vue';
-import DeleteForeverButton from '@/Components/App/DeleteForeverButton.vue';
-import RestoreFilesButton from '@/Components/App/RestoreFilesButton.vue';
+import DownloadFilesButton from '@/Components/App/DownloadFilesButton.vue';
+
 
 
 // Props

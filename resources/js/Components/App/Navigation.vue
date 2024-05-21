@@ -11,10 +11,10 @@
         <div class="px-3">
             <CreateNewDropdown />
             <div class="py-3">
-                <NavLink :active="$page.url == '/my-files'" :href="route('MyFiles')">My Files</NavLink>
-                <NavLink :active="$page.url == '/file/shared-with-me'" :href="route('file.sharedWithMe')">Shared with me</NavLink>
-                <NavLink :active="$page.url == '/file/shared-by-me'" :href="route('file.sharedByMe')">Shared by me</NavLink>
-                <NavLink :active="$page.url == '/trash'" :href="route('trash')">Trash</NavLink>
+                <NavLink :active="$page.props.route_name == 'MyFiles'" :href="route('MyFiles')">My Files</NavLink>
+                <NavLink :active="$page.props.route_name == 'file.sharedWithMe'" :href="route('file.sharedWithMe')">Shared with me</NavLink>
+                <NavLink :active="$page.props.route_name == 'file.sharedByMe'" :href="route('file.sharedByMe')">Shared by me</NavLink>
+                <NavLink :active="$page.props.route_name == 'trash'" :href="route('trash')">Trash</NavLink>
             </div>
         </div>
     </nav>

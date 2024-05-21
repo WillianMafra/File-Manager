@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -35,6 +36,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             '_csrf_token' => csrf_token(),
+            'route_name' => Route::currentRouteName()
         ];
     }
 }
