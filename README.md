@@ -113,6 +113,7 @@ and then execute the following command in the project directory:
 sail down
 ```
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
 ## 😄 Made by Willian Mafra and supported by TheCodeholic's youtube video<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
 <a href="https://linkedin.com/in/willnmafra" target="_blank">
