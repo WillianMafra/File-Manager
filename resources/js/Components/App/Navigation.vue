@@ -5,7 +5,7 @@
                 <ApplicationLogo
                     class="block h-9 ml-1 w-auto fill-current text-gray-800"
                 />
-                WillStorage
+                File Manager
             </Link>
         </div>
         <div class="px-3">

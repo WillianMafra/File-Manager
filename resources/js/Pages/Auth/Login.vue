@@ -90,7 +90,7 @@ const submit = () => {
                     Register
                 </Link>
 
-                <PrimaryButton class="ms-4 bg-green-600" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                <PrimaryButton class="ms-4 bg-blue-950" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Log in
                 </PrimaryButton>
             </div>

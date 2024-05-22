@@ -1,6 +1,7 @@
 # File Manager 
+<img src="file-manager.png">
 
-### 📝 This project is similar to Google Drive. In File Maganer, you can upload files, download and share with another user. File Manager have login/register pages and use nested sets for better archives management. 
+### 📝 This project is similar to Google Drive. In File Maganer, you can upload, download, delete files and even also share with another user. File Manager have login/register, trash, my files, shared with me and shared by me pages. In this project was used nested sets for better archives management. 
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
 ## 🛠️ Made with Laravel, VueJS, Composer, NPM, PHP, Postgres, Docker
@@ -113,6 +114,7 @@ and then execute the following command in the project directory:
 sail down
 ```
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
 ## 😄 Made by Willian Mafra and supported by TheCodeholic's youtube video<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
 <a href="https://linkedin.com/in/willnmafra" target="_blank">
